@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+const rawBaseUrl = import.meta.env.VITE_API_URL || '/api';
+const cleanBaseUrl = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
+const baseURL = cleanBaseUrl.endsWith('/api') ? cleanBaseUrl : `${cleanBaseUrl}/api`;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -22,6 +26,10 @@ api.interceptors.request.use(
       localStorage.setItem('scriptflow_guest_id', guestId);
     }
     config.headers['x-guest-id'] = guestId;
+
+    if (config.data?.language) {
+      console.log(`[Client API] Sending request to ${config.url} with language: ${config.data.language}`);
+    }
 
     return config;
   },

@@ -12,6 +12,7 @@ import { masterPromptService } from './masterPromptService.js';
 import { geminiProvider } from '../integrations/geminiProvider.js';
 import { shootingBriefService } from './shootingBriefService.js';
 import { ApiError } from '../utils/ApiError.js';
+import { getLanguagePromptInstruction, normalizeLanguage } from '../utils/languageHelper.js';
 
 // In-memory execution lock to prevent duplicate runs for the same user and product
 const activeJobs = new Set();
@@ -281,13 +282,17 @@ URL: ${productUrl || 'Not provided'}`,
       const geminiClient = await geminiProvider.getClient();
       if (geminiClient) {
         try {
+          const cleanLanguage = normalizeLanguage(language);
+          const languageInstruction = getLanguagePromptInstruction(cleanLanguage);
+          console.log(`[ProductAutoScript] Generating AI script | Product: "${cleanProductName}" | Language: ${cleanLanguage} | Module: ${module}`);
+
           const aiPrompt = `You are an elite short-form video creative director and direct-response advertising strategist.
 Create a high-converting, viral-ready Product Script and Scene-by-Scene Shooting Instructions for:
 
 PRODUCT NAME: ${cleanProductName}
 CONTENT MODULE: ${module} (Options: 'personal-branding' = trust and authority; 'meta-ads' = high-converting paid ad with clear offer; 'story-marketing' = interactive 4-part transformation narrative)
 TARGET PLATFORM: ${platform}
-PRIMARY LANGUAGE: ${language} (CRITICAL: If language is Gujarati, write ALL spoken dialogue, hooks, and body in fluent Gujarati ગુજરાતી. If Marathi, write in Marathi मराठी. If Hindi, write in Hindi हिंदी. If Hinglish, write in natural conversational Hinglish. If English, write in punchy spoken English).
+${languageInstruction}
 TARGET MARKET: ${targetMarket}
 PRODUCT DESCRIPTION: ${description || 'A standout product designed for modern consumers'}
 PRICE: ${price || 'Competitive pricing'}
@@ -549,16 +554,19 @@ Return strictly valid JSON matching this exact structure:
     }
 
     const { productName, module, language, targetMarket } = autoScript;
+    const cleanLanguage = normalizeLanguage(language);
+    const languageInstruction = getLanguagePromptInstruction(cleanLanguage);
     let newHooks = null;
 
     const geminiClient = await geminiProvider.getClient();
     if (geminiClient) {
       try {
+        console.log(`[ProductAutoScript] Regenerating hooks | Product: "${productName}" | Language: ${cleanLanguage}`);
         const prompt = `You are a viral short-form video copywriter.
 Generate 3 completely fresh, scroll-stopping hooks for this product video:
 PRODUCT: ${productName}
 MODULE: ${module}
-LANGUAGE: ${language} (CRITICAL: If Gujarati, write in natural Gujarati. If Marathi, write in Marathi. If Hindi, write in Hindi. If Hinglish, write in Hinglish).
+${languageInstruction}
 TARGET REGION: ${targetMarket}
 
 Return valid JSON with:
@@ -587,44 +595,63 @@ Return valid JSON with:
     }
 
     if (!newHooks) {
+      const isGujarati = cleanLanguage === 'Gujarati';
+      const isMarathi = cleanLanguage === 'Marathi';
+      const isHindi = cleanLanguage === 'Hindi';
+      const isHinglish = cleanLanguage === 'Hinglish';
+
+      const hook1 = isGujarati
+        ? `જો તમે ${productName} વિશે નથી જાણતા, તો તમે તમારો ઘણો સમય બગાડી રહ્યા છો!`
+        : isMarathi
+        ? `जर तुम्हाला ${productName} बद्दल माहिती नसेल, तर तुम्ही तुमचा मौल्यवान वेळ वाया घालवत आहात!`
+        : isHindi
+        ? `अगर आप ${productName} के बारे में नहीं जानते, तो आप बहुत कुछ मिस कर रहे हैं!`
+        : isHinglish
+        ? `Agar aap ${productName} ke baare mein nahi jaante, toh you're missing out big time!`
+        : `Wait! Before you buy anything else for this problem, look at ${productName}.`;
+
+      const hook2 = isGujarati
+        ? `${productName} નો ઉપયોગ કર્યા પછી જૂની રીતો પર પાછા જવું અશક્ય છે!`
+        : isMarathi
+        ? `${productName} चा वापर केल्यानंतर जुन्या पद्धती विसरून जाल!`
+        : isHindi
+        ? `${productName} इस्तेमाल करने के बाद पुराने तरीके भूल जाएंगे आप!`
+        : isHinglish
+        ? `Ek baar ${productName} try kar liya, toh old alternatives pe wapas jana impossible hai!`
+        : `Why are people replacing their expensive routine with ${productName}?`;
+
+      const hook3 = isGujarati
+        ? `આ એક ગુપ્ત રીત છે જે ${productName} સાથે તમારું કામ 10x સરળ બનાવે છે.`
+        : isMarathi
+        ? `ही एक अशी गुप्त ट्रिक आहे जी ${productName} सोबत तुमचे काम 10x सोपे करते.`
+        : isHindi
+        ? `यह एक सीक्रेट टिप है जो ${productName} के साथ आपके रिज़ल्ट्स 10 गुना बढ़ा देगी।`
+        : isHinglish
+        ? `Yeh 1 secret tip ${productName} ke saath aapka experience 10x smooth bana degi.`
+        : `The 1 feature inside ${productName} nobody told you about.`;
+
       newHooks = {
         hookOptions: [
           {
             type: 'Direct Proof Angle',
-            hookText: language === 'Gujarati'
-              ? `જો તમે ${productName} વિશે નથી જાણતા, તો તમે તમારો ઘણો સમય બગાડી રહ્યા છો!`
-              : language === 'Hindi'
-              ? `अगर आप ${productName} के बारे में नहीं जानते, तो आप बहुत कुछ मिस कर रहे हैं!`
-              : `Wait! Before you buy anything else for this problem, look at ${productName}.`,
+            hookText: hook1,
             whyItWorks: 'Direct contrast pattern interrupt',
             estimatedRetentionLift: '+22%',
           },
           {
             type: 'Costly Alternative Angle',
-            hookText: language === 'Gujarati'
-              ? `${productName} નો ઉપયોગ કર્યા પછી જૂની રીતો પર પાછા જવું અશક્ય છે!`
-              : language === 'Hindi'
-              ? `${productName} इस्तेमाल करने के बाद पुराने तरीके भूल जाएंगे आप!`
-              : `Why are people replacing their expensive routine with ${productName}?`,
+            hookText: hook2,
             whyItWorks: 'Social proof curiosity gap',
             estimatedRetentionLift: '+25%',
           },
           {
             type: 'Insider Secret Angle',
-            hookText: language === 'Gujarati'
-              ? `આ એક ગુપ્ત રીત છે જે ${productName} સાથે તમારું કામ 10x સરળ બનાવે છે.`
-              : language === 'Hindi'
-              ? `यह एक सीक्रेट टिप है जो ${productName} के साथ आपके रिज़ल्ट्स 10 गुना बढ़ा देगी।`
-              : `The 1 feature inside ${productName} nobody told you about.`,
+            hookText: hook3,
             whyItWorks: 'Specific insider benefit hook',
             estimatedRetentionLift: '+20%',
           },
         ],
-        recommendedHook: language === 'Gujarati'
-          ? `જો તમે ${productName} વિશે નથી જાણતા, તો તમે તમારો ઘણો સમય બગાડી રહ્યા છો!`
-          : language === 'Hindi'
-          ? `अगर आप ${productName} के बारे में नहीं जानते, तो आप बहुत कुछ मिस कर रहे हैं!`
-          : `Wait! Before you buy anything else for this problem, look at ${productName}.`,
+        recommendedHook: hook1,
       };
     }
 

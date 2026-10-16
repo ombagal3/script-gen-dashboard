@@ -7,6 +7,7 @@ export const generateMasterPrompt = asyncHandler(async (req, res) => {
     guestId: req.guestId || null,
   };
 
+  console.log(`[MasterPromptController] generateMasterPrompt requested | Language: ${req.body?.language} | Module: ${req.body?.module}`);
   const masterPrompt = await masterPromptService.generateMasterPrompt(req.body, userContext);
 
   res.status(201).json({

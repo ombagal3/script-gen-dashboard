@@ -1,4 +1,5 @@
 import { geminiProvider } from '../integrations/geminiProvider.js';
+import { normalizeLanguage } from '../utils/languageHelper.js';
 
 /**
  * Shooting Brief Service
@@ -51,7 +52,7 @@ export const shootingBriefService = {
     const {
       brandName = 'Authority Creator',
       industry = 'Finance and Taxation',
-      preferredLanguage = 'Hinglish',
+      preferredLanguage = 'English',
       typicalDuration = 60,
       module = 'personal-branding',
       category = 'Business Owner',
@@ -61,7 +62,8 @@ export const shootingBriefService = {
       connectedAccountInsights = {},
     } = strategy;
 
-    const lang = preferredLanguage.toLowerCase();
+    const cleanLanguage = normalizeLanguage(preferredLanguage);
+    const lang = cleanLanguage.toLowerCase();
 
     // 1. Generate 3 Hook Options tailored to language & objective
     const hookOptions = this.generateHookOptions(topic, industry, category, lang);
@@ -227,6 +229,32 @@ export const shootingBriefService = {
       ];
     }
 
+    if (lang === 'marathi') {
+      return [
+        {
+          id: 'hook-1',
+          style: 'Contrarian Truth / Preventable Loss (Recommended)',
+          hookText: `जर तुम्ही ${topic} बाबत ही 1 चूक करत असाल, तर आत्ताच थांबा! यामुळे तुमचा वेळ आणि पैसे वाया जाऊ शकतात.`,
+          rationale: 'प्रेक्षकांचे लक्ष त्वरित वेधून घेतो आणि अनावश्यक नुकसान टाळण्याचे आश्वासन देतो.',
+          isRecommended: true,
+        },
+        {
+          id: 'hook-2',
+          style: 'Direct Solution & Myth Busting',
+          hookText: `तुम्हाला सुद्धा वाटते का की ${topic} खूप कठीण आहे? खरं सांगू तर, 90% लोक चुकीच्या पद्धतीने सुरुवात करतात.`,
+          rationale: 'स्पष्ट आणि व्यावहारिक उपाय देण्याचे वचन देतो.',
+          isRecommended: false,
+        },
+        {
+          id: 'hook-3',
+          style: 'Expert Insight & Case Study',
+          hookText: `जेव्हा मी पहिल्यांदा ${topic} चा सखोल अभ्यास केला, तेव्हा एक अशी वस्तुस्थिती समोर आली जी कोणीही सांगत नाही. सत्य जाणून घ्या:`,
+          rationale: 'विश्वसनीयता आणि आकर्षक कल्पकता निर्माण करतो.',
+          isRecommended: false,
+        },
+      ];
+    }
+
     if (lang === 'hindi') {
       return [
         {
@@ -295,6 +323,12 @@ export const shootingBriefService = {
         module === 'meta-ads'
           ? `તમારા બિઝનેસ માટે પર્સનલાઇઝ્ડ રોડમેપ જોઈએ છે? નીચે આપેલી લિંક પર ક્લિક કરીને ફ્રી કન્સલ્ટેશન કૉલ બુક કરો!`
           : `જો આ માહિતી ઉપયોગી લાગી હોય, તો આ પોસ્ટ સેવ કરો જેથી ભવિષ્યમાં યાદ રહે, અને નવી ટિપ્સ માટે ફોલો બટન જરૂર દબાવો!`;
+    } else if (lang === 'marathi') {
+      body = `पायरी 1: समस्याच्या मूळ कारणाचा शोध घ्या. जेव्हा तुम्ही स्पष्ट नियोजनाशिवाय ${topic} करता, तेव्हा चुकीच्या पद्धतींमध्ये वेळ वाया जातो.\n\nपायरी 2: हा सोपा फॉर्म्युला वापरा. आपले प्रत्यक्ष आकडे तपासा आणि अनावश्यक बाबी काढून टाका.\n\nपायरी 3: व्यावहारिक अंमलबजावणी. आजच तुमच्या पद्धतीत हा 1 विशिष्ट बदल करा आणि निकाल पाहा.`;
+      cta =
+        module === 'meta-ads'
+          ? `तुमच्या व्यवसायासाठी योग्य योजना हवी आहे? खाली दिलेल्या लिंकवर क्लिक करून विनामूल्य कॉल बुक करा!`
+          : `ही माहिती उपयुक्त वाटल्यास ही पोस्ट सेव्ह करा आणि दररोज नवीन मार्गदर्शनासाठी फॉलो करा!`;
     } else if (lang === 'hindi') {
       body = `स्टेप 1: समस्या की जड़ को समझें। ${topic} के विषय में अधिकांश लोग अधूरी जानकारी के आधार पर निर्णय लेते हैं।\n\nस्टेप 2: सही फॉर्मूला अपनाएं। अपने आंकड़ों का स्पष्ट मूल्यांकन करें और भ्रामक दावों से बचें।\n\nस्टेप 3: व्यावहारिक कदम। आज ही इस बदलाव को लागू करें और अपनी दक्षता में सुधार देखें।`;
       cta = `इस जानकारी को भविष्य के लिए सेव करें और अधिक उपयोगी रणनीतियों के लिए फॉलो करें!`;

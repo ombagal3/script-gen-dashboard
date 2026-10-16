@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 import { env } from '../config/env.js';
 import { DataSource } from '../models/DataSource.js';
+import { getLanguagePromptInstruction, normalizeLanguage } from '../utils/languageHelper.js';
 
 /**
  * Provider adapter for Google Gemini Generative AI Engine
@@ -178,13 +179,19 @@ class GeminiProvider {
     const ai = await this.getClient();
     if (!ai) return null;
 
+    const cleanLanguage = normalizeLanguage(language);
+    const languageInstruction = getLanguagePromptInstruction(cleanLanguage);
+
+    // Safe diagnostic log without leaking secrets or full prompts
+    console.log(`[GeminiProvider] Generating script | Module: ${module} | Category: ${category} | Language: ${cleanLanguage} | Model: ${this.getActiveModel()}`);
+
     const prompt = `You are an elite short-form video scriptwriter and viral content strategist for Instagram Reels and YouTube Shorts.
 Generate an original, ready-to-shoot video script.
 
 MODULE: ${module}
 CATEGORY: ${category}
 OBJECTIVE: ${objective}
-LANGUAGE: ${language} (CRITICAL: If Gujarati, generate all spoken script content, hooks, and CTA completely in authentic spoken Gujarati script/vocabulary. If Hinglish, use natural spoken Hindi-English mix. If Marathi, use fluent spoken Marathi. If Hindi, use conversational Hindi).
+${languageInstruction}
 TARGET DURATION: ${duration} seconds
 FRAMEWORK / METHOD: ${method?.name || 'Hook → Problem → Value → CTA'}
 INPUT DETAILS: ${JSON.stringify(inputData)}
@@ -236,7 +243,7 @@ Return strictly valid JSON with no markdown wrapping, matching this exact struct
       module,
       category,
       objective,
-      language,
+      language: cleanLanguage,
       duration,
       hook: parsed.hook || '',
       body: parsed.body || '',
@@ -253,13 +260,18 @@ Return strictly valid JSON with no markdown wrapping, matching this exact struct
     const ai = await this.getClient();
     if (!ai) return null;
 
+    const cleanLanguage = normalizeLanguage(strategy?.preferredLanguage || 'English');
+    const languageInstruction = getLanguagePromptInstruction(cleanLanguage);
+
+    console.log(`[GeminiProvider] Generating shooting brief | Language: ${cleanLanguage} | Model: ${this.getActiveModel()}`);
+
     const prompt = `You are a professional video production director and viral script strategist.
 Generate a complete, production-ready 5-part Shooting Brief Package.
 
 TOPIC: ${topic}
 INDUSTRY: ${strategy?.niche || 'Business & Creator'}
 TARGET AUDIENCE: ${strategy?.targetAudience || 'General Audience'}
-PRIMARY LANGUAGE: ${strategy?.preferredLanguage || 'Hinglish'} (CRITICAL: If Gujarati, generate all spoken hooks, script body, and CTA in natural spoken Gujarati. If Marathi, use Marathi. If Hindi, use Hindi. If Hinglish, use conversational Hinglish).
+${languageInstruction}
 TREND CONTEXT: ${JSON.stringify(trendData || {})}
 
 Return strictly valid JSON with this exact structure:

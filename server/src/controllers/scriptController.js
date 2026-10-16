@@ -87,6 +87,8 @@ export const deleteScript = asyncHandler(async (req, res) => {
 export const generateScript = asyncHandler(async (req, res) => {
   const { module, category, objective, language, duration, inputData, methodId, variationsCount = 1 } = req.body;
 
+  console.log(`[ScriptController] generateScript requested | Module: ${module} | Language: ${language} | Variations: ${variationsCount}`);
+
   let method = null;
   if (methodId) {
     try {
@@ -187,13 +189,17 @@ export const generateVariation = asyncHandler(async (req, res) => {
 });
 
 export const regenerateSection = asyncHandler(async (req, res) => {
-  const { module, section, currentScript, inputData } = req.body;
+  const { module, section, currentScript, inputData = {} } = req.body;
+  const language = req.body.language || inputData.language || currentScript?.language || 'English';
+  const mergedInputData = { ...(inputData || {}), language };
+
+  console.log(`[ScriptController] regenerateSection requested | Module: ${module} | Section: ${section} | Language: ${language}`);
 
   const regeneratedData = await aiService.regenerateSection({
     module,
     section,
     currentScript,
-    inputData,
+    inputData: mergedInputData,
   });
 
   res.status(200).json({
@@ -217,7 +223,7 @@ export const generateFromTrends = asyncHandler(async (req, res) => {
   const strat = {
     brandName: req.body.brandName || 'Authority Creator',
     industry: trend?.industry || req.body.industry || 'Business & Tech',
-    preferredLanguage: language || 'Hinglish',
+    preferredLanguage: language || 'English',
     typicalDuration: duration || 60,
     module: module || 'personal-branding',
     category: category || 'Business Owner',

@@ -4,6 +4,7 @@ import { Script } from '../models/Script.js';
 import { ScriptMethod } from '../models/ScriptMethod.js';
 import { aiService } from './aiService.js';
 import { ApiError } from '../utils/ApiError.js';
+import { normalizeLanguage } from '../utils/languageHelper.js';
 
 export const masterPromptService = {
   /**
@@ -360,19 +361,23 @@ Preserve the precise chronological flow and make each step distinctly recognizab
   },
 
   buildSectionQualityControls(module, duration, language = 'English') {
-    let langRule = `- Language & Cadence: Deliver all spoken script lines, hooks, and body in natural ${language}.`;
-    if (language === 'Gujarati') {
-      langRule = `- Language & Cadence: Deliver all spoken script lines, hooks, body, and CTA in authentic spoken Gujarati (ગુજરાતી). Use natural creator phrasing and idioms that modern creators speak in Gujarat.`;
-    } else if (language === 'Marathi') {
-      langRule = `- Language & Cadence: Deliver all spoken script lines, hooks, body, and CTA in authentic spoken Marathi (मराठी) with conversational cadence.`;
-    } else if (language === 'Hindi') {
-      langRule = `- Language & Cadence: Deliver all spoken script lines in fluent conversational Hindi (हिंदी).`;
-    } else if (language === 'Hinglish') {
-      langRule = `- Language & Cadence: Deliver in modern conversational Hinglish (Hindi-English mix) as spoken by top Indian creators.`;
+    const cleanLang = normalizeLanguage(language);
+    let langRule = `- Language & Cadence: Deliver all spoken script lines, hooks, body, CTA, captions, and hashtags strictly in natural ${cleanLang}.`;
+    if (cleanLang === 'Gujarati') {
+      langRule = `- Language & Cadence: Deliver all spoken script lines, hooks, body, and CTA in authentic spoken Gujarati (ગુજરાતી script). Use natural creator phrasing and idioms that modern creators speak in Gujarat. Do NOT generate Hindi or Hinglish.`;
+    } else if (cleanLang === 'Marathi') {
+      langRule = `- Language & Cadence: Deliver all spoken script lines, hooks, body, and CTA in authentic spoken Marathi (मराठी) with natural conversational cadence. Do NOT generate Hindi or Hinglish.`;
+    } else if (cleanLang === 'Hindi') {
+      langRule = `- Language & Cadence: Deliver all spoken script lines in fluent conversational Hindi (हिंदी) in Devanagari script.`;
+    } else if (cleanLang === 'Hinglish') {
+      langRule = `- Language & Cadence: Deliver in modern conversational Hinglish (Hindi-English mix in Roman script) as spoken by top Indian creators.`;
+    } else {
+      langRule = `- Language & Cadence: Deliver all spoken script lines, hooks, body, and CTA in fluent spoken English. Do NOT use Hindi or Hinglish words.`;
     }
 
     return `- Word Count Pacing: Target ~130-150 words per 60 seconds of spoken video.
 ${langRule}
+- STRICT LANGUAGE ENFORCEMENT: Do not generate Hindi when a language other than Hindi is selected. Generate all user-facing script text in the exact selected language (${cleanLang}). Do not silently fall back to Hindi.
 - Originality: Never produce generic AI cliches ("In today's fast-paced world", "Unlock your potential").
 - Authenticity: Avoid fabricated testimonials or unverified absolute guarantees.
 - Platform Policy Compliance: Adhere strictly to Meta/Instagram advertising and community standards.
@@ -380,7 +385,8 @@ ${langRule}
   },
 
   buildSectionOutputFormat(language = 'English') {
-    return `Respond with the completed master deliverables clearly segmented using markdown headings. Ensure the primary script is completely composed in ${language} and ready for recording or teleprompter loading without additional editing needed.`;
+    const cleanLang = normalizeLanguage(language);
+    return `Respond with the completed master deliverables clearly segmented using markdown headings. Ensure the primary script is completely composed in ${cleanLang} and ready for recording or teleprompter loading without additional editing needed. Do not generate Hindi when a language other than Hindi is selected.`;
   },
 
   /**
@@ -395,13 +401,17 @@ ${langRule}
       throw new ApiError(404, 'Master prompt not found');
     }
 
+    const cleanLanguage = normalizeLanguage(masterPrompt.language);
+
+    console.log(`[MasterPromptService] Generating script from Master Prompt | ID: ${masterPrompt._id} | Language: ${cleanLanguage}`);
+
     // Call AI service to generate full script using prompt context
     const scriptGenerationPayload = {
       title: masterPrompt.title.replace(/^Master Prompt:\s*/i, ''),
       module: masterPrompt.module,
       category: masterPrompt.category,
       objective: masterPrompt.objective,
-      language: masterPrompt.language,
+      language: cleanLanguage,
       duration: masterPrompt.duration,
       methodId: masterPrompt.methodId,
       inputData: {
@@ -425,7 +435,7 @@ ${langRule}
       module: masterPrompt.module,
       category: masterPrompt.category,
       objective: masterPrompt.objective,
-      language: masterPrompt.language,
+      language: cleanLanguage,
       duration: masterPrompt.duration,
       hook: generated.hook || '',
       body: generated.body || '',

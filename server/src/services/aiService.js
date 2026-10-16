@@ -1,6 +1,7 @@
 import { env } from '../config/env.js';
 import { ApiError } from '../utils/ApiError.js';
 import { geminiProvider } from '../integrations/geminiProvider.js';
+import { getLanguagePromptInstruction, normalizeLanguage } from '../utils/languageHelper.js';
 
 /**
  * Intelligent Demo Generator produces realistic, high-converting scripts
@@ -181,6 +182,12 @@ class IntelligentDemoEngine {
         `जर तुम्ही ${targetAudience.toLowerCase()} असाल, तर हा उपाय तुमच्यासाठी गेमचेंजर ठरेल!`,
         `थांबा! इतर महागडे पर्याय वापरण्यापूर्वी हा 30 सेकंदांचा व्हिडिओ नक्की पहा.`,
       ];
+    } else if (language.toLowerCase() === 'hindi') {
+      hooks = [
+        `क्या आपका भी समय और पैसा ${customerProblem.toLowerCase()} में व्यर्थ हो रहा है?`,
+        `यदि आप ${targetAudience.toLowerCase()} हैं, तो यह समाधान आपके लिए गेमचेंजर साबित होगा!`,
+        `रुकिए! दूसरे महंगे विकल्प आजमाने से पहले यह 30 सेकंड का वीडियो ज़रूर देखें।`,
+      ];
     }
 
     let body;
@@ -190,6 +197,8 @@ class IntelligentDemoEngine {
       body = `વાસ્તવિકતા: દરરોજ તમે ${customerProblem.toLowerCase()} નો સામનો કરો છો, તે તમારી આવક અને સમયનું મોટું નુકસાન છે.\n\n${brandName} રજૂ કરીએ છીએ: ખાસ કરીને તમને ${benefitsUSP} આપવા માટે તૈયાર કરાયેલ.\n\nગ્રાહકોનો સાચો પુરાવો: "${actualTestimonials}"\n\nખાસ ઓફર: ${priceOffer}. કોઈ છુપા ચાર્જ વગર, ગમે ત્યારે રદ કરી શકો છો.`;
     } else if (language.toLowerCase() === 'marathi') {
       body = `वस्तुस्थिती: दररोज तुम्ही ${customerProblem.toLowerCase()} चा सामना करता, त्यामुळे तुमचे महसूल आणि वेळेचे मोठे नुकसान होते.\n\nसादर करत आहोत ${brandName}: खास तुम्हाला ${benefitsUSP} देण्यासाठी तयार केलेले.\n\nग्राहकांचा खरा पुरावा: "${actualTestimonials}"\n\nविशेष ऑफर: ${priceOffer}. कोणतीही लपलेली फी नाही, कधीही रद्द करण्याची हमी.`;
+    } else if (language.toLowerCase() === 'hindi') {
+      body = `वास्तविकता: हर दिन ${customerProblem.toLowerCase()} का सामना करना आपके समय और राजस्व का भारी नुकसान है।\n\nप्रस्तुत है ${brandName}: खास तौर पर आपको ${benefitsUSP} प्रदान करने के लिए तैयार किया गया।\n\nसत्यापित प्रमाण: "${actualTestimonials}"\n\nविशेष ऑफर: ${priceOffer}। बिना किसी छिपे शुल्क के, कभी भी रद्द करने की गारंटी।`;
     } else {
       body = `The Reality: Every day you deal with ${customerProblem.toLowerCase()} is revenue and energy left on the table.\n\nMeet ${brandName}: Built specifically to give you ${benefitsUSP}.\n\nReal Customer Evidence: "${actualTestimonials}"\n\nExclusive Offer: ${priceOffer}. No hidden catches, cancel anytime guarantee.`;
     }
@@ -198,6 +207,10 @@ class IntelligentDemoEngine {
       ? `તમારી સ્પેશિયલ ઓફર મેળવવા અને તરત જ શરૂ કરવા માટે નીચે આપેલા બટન પર ક્લિક કરો: ${landingPageUrl}!`
       : language.toLowerCase() === 'marathi'
       ? `तुमची विशेष ऑफर मिळवण्यासाठी आणि लगेच सुरुवात करण्यासाठी खालील बटणावर क्लिक करा: ${landingPageUrl}!`
+      : language.toLowerCase() === 'hindi'
+      ? `अपना विशेष ऑफर पाने और तुरंत शुरुआत करने के लिए नीचे दिए गए बटन पर क्लिक करें: ${landingPageUrl}!`
+      : language.toLowerCase() === 'hinglish'
+      ? `Apna exclusive offer claim karne aur turant shuru karne ke liye niche click karein: ${landingPageUrl}!`
       : `Click the button below to claim your offer and get started immediately at ${landingPageUrl}!`;
 
     const sceneVisuals = [
@@ -278,13 +291,19 @@ class IntelligentDemoEngine {
     const count = Math.min(Math.max(parseInt(slideCount, 10) || 5, 3), 7);
     const slides = [];
 
+    const langLower = language.toLowerCase();
+
     // Slide 1: Attention-grabbing opening
     slides.push({
       slideNumber: 1,
       type: 'Opening Hook',
-      text: language.toLowerCase() === 'gujarati'
+      text: langLower === 'gujarati'
         ? `હું છેલ્લા 3 અઠવાડિયાથી એક ગુપ્ત પ્રોજેક્ટ પર કામ કરી રહ્યો હતો... અને આખરે આજે તમારી સાથે શેર કરી રહ્યો છું! 👀`
-        : language.toLowerCase() === 'hinglish'
+        : langLower === 'marathi'
+        ? `मी गेल्या ३ आठवड्यांपासून एका गुप्त प्रोजेक्टवर काम करत होतो... आणि आज अखेर तुमच्यासोबत शेअर करत आहे! 👀`
+        : langLower === 'hindi'
+        ? `मैं पिछले 3 हफ़्तों से एक सीक्रेट प्रोजेक्ट पर काम कर रहा था... और आखिरकार आज आपके साथ शेयर कर रहा हूँ! 👀`
+        : langLower === 'hinglish'
         ? `Main pichle 3 hafton se ek secret project pe kaam kar raha tha... and finally I can share this with you! 👀`
         : `I almost didn't post this, but something happened behind the scenes that changed everything... 👀`,
       visualSuggestion: 'Selfie video or candid unedited photo looking straight at camera with curiosity sticker.',
@@ -296,9 +315,13 @@ class IntelligentDemoEngine {
     slides.push({
       slideNumber: 2,
       type: 'Problem & Context',
-      text: language.toLowerCase() === 'gujarati'
+      text: langLower === 'gujarati'
         ? `સૌથી મોટો મુદ્દો એ હતો: આપણે માનીએ છીએ કે સફળતા રાતોરાત આવે છે, પરંતુ વાસ્તવિક સંઘર્ષ અદ્રશ્ય હોય છે.`
-        : language.toLowerCase() === 'hinglish'
+        : langLower === 'marathi'
+        ? `सर्वात मोठी अडचण ही होती: यश एका रात्रीत मिळते असा समज असतो, पण खरा संघर्ष अदृश्य असतो.`
+        : langLower === 'hindi'
+        ? `सबसे बड़ी चुनौती यह थी: हमें लगता है कि सफलता रातों-रात मिलती है, लेकिन असली संघर्ष दिखाई नहीं देता।`
+        : langLower === 'hinglish'
         ? `Sabse bada issue yeh tha: humein lagta hai ki success overnight aati hai, par real struggle invisible hota hai.`
         : `Here was the real challenge: when we started, we were hitting a wall every single week trying to get consistent results.`,
       visualSuggestion: 'Desk shot or workspace photo with text overlay box in high-contrast neutral tone.',
@@ -311,9 +334,13 @@ class IntelligentDemoEngine {
       slides.push({
         slideNumber: 3,
         type: 'The Relatable Insight',
-        text: language.toLowerCase() === 'gujarati'
+        text: langLower === 'gujarati'
           ? `પછી મને સમજાયું: શોર્ટકટ પાછળ દોડવાથી કંઈ નહીં થાય. સિસ્ટમ અને શિસ્ત જ સાચો તફાવત લાવે છે.`
-          : language.toLowerCase() === 'hinglish'
+          : langLower === 'marathi'
+          ? `मग मला समजले: शॉर्टकट मागे धावून काही साध्य होत नाही. शिस्त आणि योग्य पद्धतच खरा बदल घडवते.`
+          : langLower === 'hindi'
+          ? `फिर समझ आया: शॉर्टकट के पीछे भागने से कुछ नहीं होगा। सही सिस्टम और अनुशासन ही असली फर्क लाते हैं।`
+          : langLower === 'hinglish'
           ? `Phir humne realize kiya: shortcuts ke peeche bhaagne se kuch nahi hoga. System aur discipline hi real difference banate hain.`
           : `That is when we made one simple shift in our approach, and the entire roadblock disappeared.`,
         visualSuggestion: 'Short 5-sec talking head video or aesthetic photo with highlight circles on key takeaway.',
@@ -327,9 +354,13 @@ class IntelligentDemoEngine {
       slides.push({
         slideNumber: 4,
         type: 'The Solution & Value',
-        text: language.toLowerCase() === 'gujarati'
+        text: langLower === 'gujarati'
           ? `અમે એક સંપૂર્ણ બ્લુપ્રિન્ટ તૈયાર કરી છે જેથી કોઈપણ તેને સરળતાથી સ્ટેપ-બાય-સ્ટેપ લાગુ કરી શકે.`
-          : language.toLowerCase() === 'hinglish'
+          : langLower === 'marathi'
+          ? `आम्ही एक संपूर्ण ब्लूप्रिंट तयार केली आहे जेणेकरून कोणीही ती सहजपणे पायरी-पायरीने वापरू शकेल.`
+          : langLower === 'hindi'
+          ? `हमने एक पूरी ब्लूप्रिंट तैयार की है ताकि कोई भी इसे आसानी से स्टेप-बाय-स्टेप लागू कर सके।`
+          : langLower === 'hinglish'
           ? `Humne ek complete blueprint create kiya hai jisse koi bhi isse easily implement kar sakta hai step-by-step.`
           : `We packaged the exact framework so you can avoid our 6 months of mistakes in just 10 minutes.`,
         visualSuggestion: 'Screenshot preview of framework, document, or happy client snapshot with subtle blur on confidential parts.',
@@ -343,7 +374,15 @@ class IntelligentDemoEngine {
       slides.push({
         slideNumber: 5,
         type: 'Social Proof / Urgency',
-        text: `The first 50 people who tested this got remarkable breakthroughs within 72 hours. Spots are strictly limited.`,
+        text: langLower === 'gujarati'
+          ? `પ્રથમ 50 લોકો જેમણે આ અજમાવ્યું તેમને 72 કલાકમાં અસાધારણ પરિણામ મળ્યા. જગ્યાઓ મર્યાદિત છે.`
+          : langLower === 'marathi'
+          ? `ज्या पहिल्या ५० जणांनी ही पद्धत वापरली, त्यांना ७२ तासांत उत्तम निकाल मिळाले. जागा मर्यादित आहेत.`
+          : langLower === 'hindi'
+          ? `पहले 50 लोग जिन्होंने इसे आजमाया, उन्हें 72 घंटों में शानदार परिणाम मिले। सीटें सीमित हैं।`
+          : langLower === 'hinglish'
+          ? `Pehle 50 logon ne jab yeh test kiya toh unhe 72 hours mein amazing breakthroughs mile. Spots strictly limited hain.`
+          : `The first 50 people who tested this got remarkable breakthroughs within 72 hours. Spots are strictly limited.`,
         visualSuggestion: 'Quick carousel preview or WhatsApp/DM screenshot praise.',
         stickerSuggestion: 'Reaction Sticker 🔥',
         ctaText: '',
@@ -355,9 +394,13 @@ class IntelligentDemoEngine {
     slides.push({
       slideNumber: finalSlideNum,
       type: 'Direct CTA',
-      text: language.toLowerCase() === 'gujarati'
+      text: langLower === 'gujarati'
         ? `જો તમને આ બ્લુપ્રિન્ટ જોઈતી હોય, તો નીચે "GROWTH" શબ્દ સાથે ${ctaType} કરો અને હું વ્યક્તિગત રીતે મોકલીશ! 👇`
-        : language.toLowerCase() === 'hinglish'
+        : langLower === 'marathi'
+        ? `जर तुम्हाला ही ब्लूप्रिंट हवी असेल, तर खाली "GROWTH" टाईप करून ${ctaType} करा, मी स्वतः पाठवीन! 👇`
+        : langLower === 'hindi'
+        ? `यदि आपको यह ब्लूप्रिंट चाहिए, तो नीचे "GROWTH" लिखकर ${ctaType} करें और मैं व्यक्तिगत रूप से भेजूंगा! 👇`
+        : langLower === 'hinglish'
         ? `Agar aapko yeh blueprint chahiye, toh niche ${ctaType} karo with the word "GROWTH" aur main personally send karunga! 👇`
         : `Want the complete step-by-step guide? ${ctaType} with the word "READY" and I'll send it directly to your inbox right now! 👇`,
       visualSuggestion: 'Warm smiling photo or pointing downward toward the message bar.',
@@ -446,16 +489,29 @@ class IntelligentDemoEngine {
   regenerateSection(module, section, currentScript = {}, inputData = {}) {
     const topic = inputData.topic || inputData.productService || 'this topic';
     const category = inputData.category || 'Professional';
-    const language = inputData.language || 'English';
+    const cleanLanguage = normalizeLanguage(inputData.language || 'English');
+    const langLower = cleanLanguage.toLowerCase();
 
     if (section === 'hook') {
-      const hooks = language.toLowerCase() === 'gujarati'
+      const hooks = langLower === 'gujarati'
         ? [
             `થોભો! શું તમે પણ ${topic.toLowerCase()} માં આ સૌથી સામાન્ય ભૂલ વારંવાર કરી રહ્યા છો?`,
             `સાચું કહું? 90% લોકો ${topic.toLowerCase()} ને ખોટી રીતે અપ્રોચ કરે છે.`,
             `આ 1 સિક્રેટ ટેકનિક જાણી લો જો તમારે ${topic.toLowerCase()} માં અલગ ઓળખ બનાવવી હોય.`,
           ]
-        : language.toLowerCase() === 'hinglish'
+        : langLower === 'marathi'
+        ? [
+            `थांबा! तुम्ही सुद्धा ${topic.toLowerCase()} मध्ये ही सर्वात मोठी चूक पुन्हा पुन्हा करत आहात का?`,
+            `खरं सांगू? 90% लोक ${topic.toLowerCase()} कडे चुकीच्या दृष्टिकोनातून पाहतात.`,
+            `ही 1 गुप्त पद्धत जाणून घ्या जर तुम्हाला ${topic.toLowerCase()} मध्ये ओळख निर्माण करायची असेल.`,
+          ]
+        : langLower === 'hindi'
+        ? [
+            `रुकिए! क्या आप भी ${topic.toLowerCase()} को लेकर यह सबसे आम गलती बार-बार कर रहे हैं?`,
+            `सच बताऊं? 90% लोग ${topic.toLowerCase()} को पूरी तरह गलत तरीके से अप्रोच करते हैं।`,
+            `यह 1 सीक्रेट फॉर्मूला जान लीजिए अगर आपको ${topic.toLowerCase()} में आगे निकलना है।`,
+          ]
+        : langLower === 'hinglish'
         ? [
             `Ruko! Kya aap bhi ${topic.toLowerCase()} mein yeh sabse common galti repeat kar rahe ho?`,
             `Sach bataun? 90% log ${topic.toLowerCase()} ko completely galat approach karte hain.`,
@@ -475,9 +531,13 @@ class IntelligentDemoEngine {
     }
 
     if (section === 'body') {
-      const newBody = language.toLowerCase() === 'gujarati'
+      const newBody = langLower === 'gujarati'
         ? `મુદ્દો 1: પહેલા મૂળ કારણ સમજો. જ્યાં સુધી તમારો પાયો મજબૂત નહીં હોય, ત્યાં સુધી પરિણામો કામચલાઉ રહેશે.\n\nમુદ્દો 2: વ્યવહારુ અમલ શરૂ કરો. દૈનિક સાતત્ય અને ફીડબેક લૂપ જાળવી રાખો.\n\nમુદ્દો 3: પરિણામો માપો. ડેટાનું વિશ્લેષણ કરો અને સતત સુધારો કરતા રહો.`
-        : language.toLowerCase() === 'hinglish'
+        : langLower === 'marathi'
+        ? `मुद्दा 1: आधी मूळ अडचण समजून घ्या. जोपर्यंत तुमचा पाया मजबूत नाही, तोपर्यंत निकाल तात्पुरते राहतील.\n\nमुद्दा 2: प्रत्यक्ष कृती सुरू करा. दैनंदिन सातत्य आणि योग्य अभिप्राय ठेवा.\n\nमुद्दा 3: निकाल तपासा. सातत्याने आवश्यक सुधारणा करा.`
+        : langLower === 'hindi'
+        ? `बिंदु 1: सबसे पहले मूल समस्या को समझें। जब तक आधार मजबूत नहीं होगा, परिणाम अस्थायी रहेंगे।\n\nबिंदु 2: व्यावहारिक अमल शुरू करें। दैनिक निरंतरता और फीडबैक बनाए रखें।\n\nबिंदु 3: परिणामों का विश्लेषण करें और लगातार सुधार करते रहें।`
+        : langLower === 'hinglish'
         ? `Point 1: Sabse pehle root cause samjho. Jab tak aapka foundation strong nahi hoga, results temporary rahenge.\n\nPoint 2: Practical implementation shuru karo. Daily consistency aur feedback loop maintain karo.\n\nPoint 3: Measure results. Data dekho aur continuous optimize karte raho.`
         : `Phase 1: Diagnosis. Identify where the biggest friction lies in ${topic.toLowerCase()}.\n\nPhase 2: Targeted execution. Focus on the 20% of effort that produces 80% of tangible momentum.\n\nPhase 3: Compounding. Solidify the process so your audience experiences undeniable value every single time.`;
       return {
@@ -487,9 +547,13 @@ class IntelligentDemoEngine {
     }
 
     if (section === 'cta') {
-      const newCta = language.toLowerCase() === 'gujarati'
+      const newCta = langLower === 'gujarati'
         ? `જો આ માહિતી ઉપયોગી લાગી હોય તો હમણાં જ સેવ કરો અને દરરોજ નવી ટિપ્સ માટે ફોલો બટન દબાવો!`
-        : language.toLowerCase() === 'hinglish'
+        : langLower === 'marathi'
+        ? `ही माहिती उपयुक्त वाटल्यास आत्ताच सेव्ह करा आणि दररोज नवीन टिप्ससाठी फॉलो करा!`
+        : langLower === 'hindi'
+        ? `यदि यह जानकारी उपयोगी लगी तो अभी सेव करें और रोज़ाना नई रणनीतियों के लिए फॉलो करें!`
+        : langLower === 'hinglish'
         ? `Agar yeh helpful laga toh abhi save karein aur follow button press karein for more valuable tips!`
         : `Save this post for later, drop your biggest question in the comments below, and tap follow for daily updates!`;
       return {
@@ -512,6 +576,11 @@ const intelligentDemoEngine = new IntelligentDemoEngine();
  */
 export const aiService = {
   async generateScript({ module, category, objective, language, duration, inputData, method }) {
+    const cleanLanguage = normalizeLanguage(language);
+
+    // Safe diagnostic log without exposing API keys or credentials
+    console.log(`[AIService] generateScript invoked | Module: ${module} | Language: ${cleanLanguage}`);
+
     // Check if real Gemini API key is configured (via env or DB credentials)
     const geminiKey = await geminiProvider.getApiKey();
     if (geminiKey) {
@@ -520,7 +589,7 @@ export const aiService = {
           module,
           category,
           objective,
-          language,
+          language: cleanLanguage,
           duration,
           inputData,
           method,
@@ -528,6 +597,7 @@ export const aiService = {
         if (liveResult) {
           return {
             ...liveResult,
+            language: cleanLanguage,
             isDemoMode: false,
             providerMessage: `Generated via live Google Gemini (${env.AI_MODEL || 'gemini-1.5-flash'})`,
           };
@@ -541,14 +611,14 @@ export const aiService = {
     // Demo Mode Fallback
     switch (module) {
       case 'personal-branding':
-        return intelligentDemoEngine.generatePersonalBranding({ category, goal: objective, language, duration, ...inputData }, method);
+        return intelligentDemoEngine.generatePersonalBranding({ category, goal: objective, language: cleanLanguage, duration, ...inputData }, method);
       case 'meta-ads':
-        return intelligentDemoEngine.generateMetaAds({ category, campaignObjective: objective, language, duration, ...inputData }, method);
+        return intelligentDemoEngine.generateMetaAds({ category, campaignObjective: objective, language: cleanLanguage, duration, ...inputData }, method);
       case 'story-marketing':
-        return intelligentDemoEngine.generateStoryMarketing({ category, ctaType: objective, language, ...inputData }, method);
+        return intelligentDemoEngine.generateStoryMarketing({ category, ctaType: objective, language: cleanLanguage, ...inputData }, method);
       case 'universal':
       default:
-        return intelligentDemoEngine.generateUniversal({ module, category, objective, language, duration, inputData }, method);
+        return intelligentDemoEngine.generateUniversal({ module, category, objective, language: cleanLanguage, duration, inputData }, method);
     }
   },
 
@@ -568,9 +638,12 @@ export const aiService = {
   },
 
   async callExternalAIProvider({ module, category, objective, language, duration, inputData, method }) {
+    const cleanLanguage = normalizeLanguage(language);
+    const languageInstruction = getLanguagePromptInstruction(cleanLanguage);
+
     // Primary: Google Gen AI official client
     try {
-      const result = await geminiProvider.generateScript({ module, category, objective, language, duration, inputData, method });
+      const result = await geminiProvider.generateScript({ module, category, objective, language: cleanLanguage, duration, inputData, method });
       if (result) return result;
     } catch (err) {
       console.warn('[AI Service] geminiProvider.generateScript error:', err.message);
@@ -584,7 +657,7 @@ export const aiService = {
 Module: ${module}
 Category: ${category}
 Objective: ${objective}
-Language: ${language}
+${languageInstruction}
 Duration: ${duration} seconds
 Method: ${method?.name || 'Default framework'}
 Details: ${JSON.stringify(inputData)}
