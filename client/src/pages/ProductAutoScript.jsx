@@ -301,11 +301,11 @@ Wardrobe: ${script.shootingInstructions?.wardrobe || 'Clean neutral attire'}
 
 Scenes:
 ${(script.shootingInstructions?.scenes || [])
-  .map(
-    (s) =>
-      `[Scene ${s.sceneNumber}] (${s.shotType} • ${s.durationSeconds}s)\n Action: ${s.visualAction}\n Dialogue: ${s.dialogue}`
-  )
-  .join('\n\n')}
+        .map(
+          (s) =>
+            `[Scene ${s.sceneNumber}] (${s.shotType} • ${s.durationSeconds}s)\n Action: ${s.visualAction}\n Dialogue: ${s.dialogue}`
+        )
+        .join('\n\n')}
 
 --- VIDEO EDITING BLUEPRINT ---
 Cuts & Pacing: ${script.editingInstructions?.cutsAndPacing || 'Fast tight cuts'}
@@ -441,9 +441,8 @@ Best Publishing Time: ${script.uploadPackage?.suggestedPublishingTime || 'Peak v
               <div className="text-right">
                 <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center justify-end gap-1.5">
                   <span
-                    className={`h-2 w-2 rounded-full ${
-                      autoScriptEnabled ? 'bg-indigo-600 animate-ping' : 'bg-slate-400'
-                    }`}
+                    className={`h-2 w-2 rounded-full ${autoScriptEnabled ? 'bg-indigo-600 animate-ping' : 'bg-slate-400'
+                      }`}
                   />
                   AutoScript {autoScriptEnabled ? 'ON' : 'OFF'}
                 </div>
@@ -454,15 +453,13 @@ Best Publishing Time: ${script.uploadPackage?.suggestedPublishingTime || 'Peak v
               <button
                 type="button"
                 onClick={() => setAutoScriptEnabled(!autoScriptEnabled)}
-                className={`relative inline-flex h-7 w-13 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
-                  autoScriptEnabled ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'
-                }`}
+                className={`relative inline-flex h-7 w-13 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${autoScriptEnabled ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'
+                  }`}
                 title="Toggle AutoScript auto-triggering"
               >
                 <span
-                  className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
-                    autoScriptEnabled ? 'translate-x-6' : 'translate-x-0'
-                  }`}
+                  className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${autoScriptEnabled ? 'translate-x-6' : 'translate-x-0'
+                    }`}
                 />
               </button>
             </div>
@@ -539,8 +536,8 @@ Best Publishing Time: ${script.uploadPackage?.suggestedPublishingTime || 'Peak v
                   {module === 'meta-ads'
                     ? 'Generates punchy hooks & direct CTA'
                     : module === 'story-marketing'
-                    ? 'Generates 4-part transformation sequence'
-                    : 'Builds authority without hard selling'}
+                      ? 'Generates 4-part transformation sequence'
+                      : 'Builds authority without hard selling'}
                 </p>
               </div>
 
@@ -595,12 +592,12 @@ Best Publishing Time: ${script.uploadPackage?.suggestedPublishingTime || 'Peak v
                       {lang === 'Gujarati'
                         ? 'Gujarati (ગુજરાતી)'
                         : lang === 'Marathi'
-                        ? 'Marathi (मराठी)'
-                        : lang === 'Hindi'
-                        ? 'Hindi (हिंदी)'
-                        : lang === 'Hinglish'
-                        ? 'Hinglish (Hindi-English)'
-                        : lang}
+                          ? 'Marathi (मराठी)'
+                          : lang === 'Hindi'
+                            ? 'Hindi (हिंदी)'
+                            : lang === 'Hinglish'
+                              ? 'Hinglish (Hindi-English)'
+                              : lang}
                     </option>
                   ))}
                 </select>
@@ -741,11 +738,10 @@ Best Publishing Time: ${script.uploadPackage?.suggestedPublishingTime || 'Peak v
                   type="button"
                   disabled={isGenerating || !productName.trim()}
                   onClick={() => handleExecuteGeneration()}
-                  className={`inline-flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold text-white shadow-lg transition-all ${
-                    isGenerating || !productName.trim()
+                  className={`inline-flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-bold text-white shadow-lg transition-all ${isGenerating || !productName.trim()
                       ? 'bg-slate-400 cursor-not-allowed shadow-none'
                       : 'bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 shadow-indigo-500/25 active:scale-98'
-                  }`}
+                    }`}
                 >
                   {isGenerating ? (
                     <>
@@ -800,13 +796,12 @@ Best Publishing Time: ${script.uploadPackage?.suggestedPublishingTime || 'Peak v
                 return (
                   <div
                     key={s.step}
-                    className={`rounded-2xl border p-3 transition-all ${
-                      isPassed
+                    className={`rounded-2xl border p-3 transition-all ${isPassed
                         ? 'border-emerald-300 bg-emerald-50/70 text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300'
                         : isCurrent
-                        ? 'border-indigo-400 bg-indigo-50/80 text-indigo-900 ring-2 ring-indigo-500/20 dark:border-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-200'
-                        : 'border-slate-200 bg-slate-50/40 text-slate-400 dark:border-slate-800 dark:bg-slate-900/40'
-                    }`}
+                          ? 'border-indigo-400 bg-indigo-50/80 text-indigo-900 ring-2 ring-indigo-500/20 dark:border-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-200'
+                          : 'border-slate-200 bg-slate-50/40 text-slate-400 dark:border-slate-800 dark:bg-slate-900/40'
+                      }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[10px] font-bold uppercase tracking-wider">Step {s.step}</span>
@@ -836,11 +831,10 @@ Best Publishing Time: ${script.uploadPackage?.suggestedPublishingTime || 'Peak v
                 <button
                   type="button"
                   onClick={() => setActiveTab('script')}
-                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
-                    activeTab === 'script'
+                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${activeTab === 'script'
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/25'
                       : 'bg-white text-slate-600 hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
-                  }`}
+                    }`}
                 >
                   <Film className="h-4 w-4" />
                   Script & Shooting Brief
@@ -849,11 +843,10 @@ Best Publishing Time: ${script.uploadPackage?.suggestedPublishingTime || 'Peak v
                 <button
                   type="button"
                   onClick={() => setActiveTab('prompt')}
-                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
-                    activeTab === 'prompt'
+                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${activeTab === 'prompt'
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/25'
                       : 'bg-white text-slate-600 hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
-                  }`}
+                    }`}
                 >
                   <FileCode className="h-4 w-4" />
                   Master Prompt (12 Sections)
@@ -862,11 +855,10 @@ Best Publishing Time: ${script.uploadPackage?.suggestedPublishingTime || 'Peak v
                 <button
                   type="button"
                   onClick={() => setActiveTab('research')}
-                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
-                    activeTab === 'research'
+                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${activeTab === 'research'
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/25'
                       : 'bg-white text-slate-600 hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
-                  }`}
+                    }`}
                 >
                   <TrendingUp className="h-4 w-4" />
                   Market Research & Evidence ({researchOutput?.sourcesSearched?.length || 0})
@@ -875,11 +867,10 @@ Best Publishing Time: ${script.uploadPackage?.suggestedPublishingTime || 'Peak v
                 <button
                   type="button"
                   onClick={() => setActiveTab('history')}
-                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
-                    activeTab === 'history'
+                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${activeTab === 'history'
                       ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/25'
                       : 'bg-white text-slate-600 hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
-                  }`}
+                    }`}
                 >
                   <Clock className="h-4 w-4" />
                   History
@@ -973,11 +964,10 @@ Best Publishing Time: ${script.uploadPackage?.suggestedPublishingTime || 'Peak v
                         <div
                           key={idx}
                           onClick={() => setSelectedHookText(h.hookText)}
-                          className={`cursor-pointer rounded-2xl border p-4 transition-all relative ${
-                            isSelected
+                          className={`cursor-pointer rounded-2xl border p-4 transition-all relative ${isSelected
                               ? 'border-indigo-600 bg-indigo-50/70 shadow-md ring-2 ring-indigo-500/20 dark:border-indigo-500 dark:bg-indigo-950/40'
                               : 'border-slate-200 bg-slate-50/50 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900/60'
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center justify-between mb-2">
                             <span className="inline-block rounded-md bg-white dark:bg-slate-800 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
@@ -1327,11 +1317,10 @@ Best Publishing Time: ${script.uploadPackage?.suggestedPublishingTime || 'Peak v
                             {src.sourceName}
                           </span>
                           <span
-                            className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${
-                              src.status === 'Connected'
+                            className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${src.status === 'Connected'
                                 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
                                 : 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400'
-                            }`}
+                              }`}
                           >
                             {src.status}
                           </span>
