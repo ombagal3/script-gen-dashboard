@@ -21,7 +21,7 @@ import { LANGUAGES, DURATIONS } from '../utils/constants';
 import api from '../services/api';
 
 export const Settings = () => {
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { theme, toggleTheme, isDark, setTheme } = useTheme();
   const { user, isGuest, updatePreferences } = useAuth();
 
   const [systemStatus, setSystemStatus] = useState(null);
@@ -86,8 +86,9 @@ export const Settings = () => {
               </p>
             </div>
             <button
+              type="button"
               onClick={toggleTheme}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-200 transition-colors"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-700 dark:hover:bg-slate-700/80 transition-all cursor-pointer"
             >
               {isDark ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-indigo-500" />}
               <span>{isDark ? 'Switch to Light' : 'Switch to Dark'}</span>
@@ -95,25 +96,41 @@ export const Settings = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div
-              onClick={() => theme !== 'light' && toggleTheme()}
-              className={`p-4 rounded-xl border-2 transition-all cursor-pointer text-center space-y-2 ${
-                !isDark ? 'border-indigo-600 bg-indigo-50/20' : 'border-slate-200 dark:border-slate-800'
+            <button
+              type="button"
+              onClick={() => setTheme('light')}
+              className={`p-4 rounded-xl border-2 transition-all cursor-pointer text-center space-y-2 relative focus:outline-none focus:ring-2 focus:ring-indigo-500/20 ${
+                !isDark
+                  ? 'border-indigo-600 bg-indigo-50/30 text-indigo-950 dark:text-indigo-200 shadow-xs'
+                  : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/80 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:bg-slate-800/60'
               }`}
             >
-              <Sun className="mx-auto w-6 h-6 text-amber-500" />
+              <Sun className={`mx-auto w-6 h-6 ${!isDark ? 'text-amber-500' : 'text-slate-400'}`} />
               <div className="text-xs font-bold">Light Mode</div>
-            </div>
+              {!isDark && (
+                <span className="inline-block text-[10px] font-semibold text-indigo-600 bg-indigo-100/80 dark:bg-indigo-900/40 dark:text-indigo-300 px-2 py-0.5 rounded-full">
+                  Active
+                </span>
+              )}
+            </button>
 
-            <div
-              onClick={() => theme !== 'dark' && toggleTheme()}
-              className={`p-4 rounded-xl border-2 transition-all cursor-pointer text-center space-y-2 ${
-                isDark ? 'border-indigo-500 bg-indigo-950/20' : 'border-slate-200 dark:border-slate-800'
+            <button
+              type="button"
+              onClick={() => setTheme('dark')}
+              className={`p-4 rounded-xl border-2 transition-all cursor-pointer text-center space-y-2 relative focus:outline-none focus:ring-2 focus:ring-indigo-500/20 ${
+                isDark
+                  ? 'border-indigo-500 bg-indigo-950/30 text-white shadow-xs'
+                  : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/80 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:bg-slate-800/60'
               }`}
             >
-              <Moon className="mx-auto w-6 h-6 text-indigo-400" />
+              <Moon className={`mx-auto w-6 h-6 ${isDark ? 'text-indigo-400' : 'text-slate-400'}`} />
               <div className="text-xs font-bold">Dark Mode</div>
-            </div>
+              {isDark && (
+                <span className="inline-block text-[10px] font-semibold text-indigo-400 bg-indigo-900/40 px-2 py-0.5 rounded-full">
+                  Active
+                </span>
+              )}
+            </button>
           </div>
         </div>
 

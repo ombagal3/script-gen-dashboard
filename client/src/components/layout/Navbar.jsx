@@ -112,11 +112,18 @@ export const Navbar = ({ setMobileOpen, systemStatus }) => {
 
           {/* Theme Toggle */}
           <button
+            id="theme-toggle-btn"
+            type="button"
             onClick={toggleTheme}
-            className="rounded-xl border border-slate-200 p-2 text-slate-600 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+            aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            className="group relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50/80 text-slate-700 shadow-xs hover:border-slate-300 hover:bg-slate-100 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-amber-400 transition-all duration-200 cursor-pointer"
           >
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {isDark ? (
+              <Sun className="h-4.5 w-4.5 text-amber-400 transition-transform duration-200 group-hover:rotate-45" />
+            ) : (
+              <Moon className="h-4.5 w-4.5 text-slate-600 transition-transform duration-200 group-hover:-rotate-12 group-hover:text-indigo-600" />
+            )}
           </button>
 
           {/* User Auth Button */}

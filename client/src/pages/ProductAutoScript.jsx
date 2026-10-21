@@ -1283,7 +1283,7 @@ Best Publishing Time: ${script.uploadPackage?.suggestedPublishingTime || 'Peak v
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200/80 bg-slate-950 p-5 font-mono text-xs text-slate-200 whitespace-pre-line leading-relaxed max-h-[600px] overflow-y-auto">
+                <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-950 p-5 font-mono text-xs text-slate-200 whitespace-pre-line leading-relaxed max-h-[600px] overflow-y-auto">
                   {masterPromptOutput.promptContent}
                 </div>
               </div>
